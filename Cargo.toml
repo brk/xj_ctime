@@ -3,6 +3,8 @@ name = "xj_ctime"
 version = "0.1.0"
 edition = "2024"
 license = "MIT"
+description = "Small library to bridge libc's time API into safe Rust for machine translations"
+repository = "https://github.com/brk/xj_ctime"
 
 [dependencies]
 libc = "0.2"
