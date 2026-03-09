@@ -102,7 +102,7 @@ pub fn asctime<'a>(tm: &Tm, buf: &'a mut [i8; 26]) -> Option<&'a CStr> {
 /// Stores the result in `tp` and returns `Ok(())` on success.
 pub fn clock_gettime(clk_id: ClockId, tp: &mut Timespec) -> io::Result<()> {
     let mut ts: libc::timespec = unsafe { std::mem::zeroed() };
-    let ret = unsafe { libc::clock_gettime(clk_id as libc::clockid_t, &mut ts) };
+    let ret = unsafe { libc::clock_gettime(clk_id.as_clockid(), &mut ts) };
     if ret == 0 {
         tp.sec = ts.tv_sec;
         tp.nsec = ts.tv_nsec;
@@ -117,7 +117,7 @@ pub fn clock_gettime(clk_id: ClockId, tp: &mut Timespec) -> io::Result<()> {
 /// Stores the resolution in `res` and returns `Ok(())` on success.
 pub fn clock_getres(clk_id: ClockId, res: &mut Timespec) -> io::Result<()> {
     let mut ts: libc::timespec = unsafe { std::mem::zeroed() };
-    let ret = unsafe { libc::clock_getres(clk_id as libc::clockid_t, &mut ts) };
+    let ret = unsafe { libc::clock_getres(clk_id.as_clockid(), &mut ts) };
     if ret == 0 {
         res.sec = ts.tv_sec;
         res.nsec = ts.tv_nsec;

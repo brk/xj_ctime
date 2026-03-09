@@ -261,16 +261,26 @@ pub fn asctime(tm: &Tm) -> Option<String> {
 
 /// Clock types for `clock_gettime`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-#[repr(i32)]
 pub enum ClockId {
     /// System-wide realtime clock.
-    Realtime = libc::CLOCK_REALTIME,
+    Realtime,
     /// Monotonic clock that cannot be set.
-    Monotonic = libc::CLOCK_MONOTONIC,
+    Monotonic,
     /// High-resolution per-process timer.
-    ProcessCputime = libc::CLOCK_PROCESS_CPUTIME_ID,
+    ProcessCputime,
     /// Thread-specific CPU-time clock.
-    ThreadCputime = libc::CLOCK_THREAD_CPUTIME_ID,
+    ThreadCputime,
+}
+
+impl ClockId {
+    pub(crate) fn as_clockid(self) -> libc::clockid_t {
+        match self {
+            ClockId::Realtime => libc::CLOCK_REALTIME,
+            ClockId::Monotonic => libc::CLOCK_MONOTONIC,
+            ClockId::ProcessCputime => libc::CLOCK_PROCESS_CPUTIME_ID,
+            ClockId::ThreadCputime => libc::CLOCK_THREAD_CPUTIME_ID,
+        }
+    }
 }
 
 /// High-resolution time specification.
@@ -286,7 +296,7 @@ impl Timespec {
     /// Gets the current time from the specified clock.
     pub fn now(clock: ClockId) -> io::Result<Self> {
         let mut ts: libc::timespec = unsafe { std::mem::zeroed() };
-        let ret = unsafe { libc::clock_gettime(clock as libc::clockid_t, &mut ts) };
+        let ret = unsafe { libc::clock_gettime(clock.as_clockid(), &mut ts) };
         if ret == 0 {
             Ok(Timespec {
                 sec: ts.tv_sec,
